@@ -6,6 +6,7 @@ import data.datajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -49,4 +50,23 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
     @Modifying(clearAutomatically = true) //이 어노테이션이 있어야 executeUpdate 함수가 실행된다.
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    @Query("select m from Member m left join fetch m.team")
+    List<Member> findMemberFetchJoin();
+
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    //JPQL + 패치 조인
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select  m from Member m")
+    List<Member> findMemberEntityGraph();
+
+    //패치 조인 네임드로 사용하기
+    //@EntityGraph(attributePaths = {"team"})
+    @EntityGraph("Member.all") //Member Entity에 애노테이션 사용
+    List<Member> findEntityGraphByUsername(@Param("username") String username);
+
+
 }

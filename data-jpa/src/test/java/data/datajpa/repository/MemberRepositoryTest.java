@@ -253,13 +253,31 @@ class MemberRepositoryTest {
         em.flush();
         em.clear();
 
-        //when
+        //when N + 1
+        //select Member 1
         List<Member> members = memberRepository.findAll();
+        //List<Member> members = memberRepository.findMemberFetchJoin();
 
         for(Member member : members) {
             System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
             System.out.println("member.team = " + member.getTeam().getName());
         }
+    }
+
+    @Test
+    public void queryHint(){
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        //when
+        Member findMember = memberRepository.findById(member1.getId()).get();
+        findMember.setUsername("member2");
+
+        em.flush(); //더티체킹 후 DB에 반영
     }
 
 }
