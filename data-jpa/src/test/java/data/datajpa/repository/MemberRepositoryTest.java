@@ -274,10 +274,27 @@ class MemberRepositoryTest {
         em.clear();
 
         //when
-        Member findMember = memberRepository.findById(member1.getId()).get();
-        findMember.setUsername("member2");
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2"); //변경 시도시 무시됨. 이유는 메소드 어노테이션으로 QueryHint룰 readOnly로 설정하엿기때문이다.
+        //findMember.setUsername("member2");
 
         em.flush(); //더티체킹 후 DB에 반영
     }
 
+    @Test
+    public void lock(){
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> findMember = memberRepository.findLockByUsername("member1");
+    }
+
+    @Test
+    public void callCustom(){
+        List<Member> ressult = memberRepository.findMemberCustom();
+    }
 }
